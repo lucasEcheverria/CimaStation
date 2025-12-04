@@ -37,8 +37,12 @@ class SHT31:
         # Esperar medición (alta precisión: ~15ms)
         time.sleep(0.02)
         
-        # Leer 6 bytes: [temp_msb, temp_lsb, temp_crc, hum_msb, hum_lsb, hum_crc]
-        datos = self.bus.read_i2c_block_data(self.address, 0x00, 6)
+        # Leer 6 bytes directamente (sin especificar registro)
+        datos = self.bus.read_i2c_block_data(self.address, 0, 6)
+        
+        # Verificar que tenemos datos válidos
+        if len(datos) != 6:
+            raise RuntimeError(f"Lectura incompleta: {len(datos)} bytes")
         
         # Extraer valores raw (16 bits cada uno)
         temp_raw = (datos[0] << 8) | datos[1]
